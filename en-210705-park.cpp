@@ -269,7 +269,7 @@ void mainMeun(stack *park) //主菜单
     printf("**                                                     **\n");
     printf("**       A --- 汽车进车场       D --- 汽车出车场       **\n");
     printf("**                                                     **\n");
-    printf("**       P --- 显示车辆信息     E --- 退出程序          **\n");
+    printf("**       P --- 显示车辆信息     E --- 退出程序         **\n");
     printf("**                                                     **\n");
     printf("**          停车场剩余%d车位，每小时收费%d元             **\n", MAX - park->top - 1, PRICE);
     printf("=========================================================\n");

@@ -216,14 +216,14 @@ void inPark(stack *park, queue *path, car vehicle) //车辆进场
 
 void outPark(stack *park, queue *path, int *number, car vehicle, int *data, int *time) //车辆出场
 {
-    int num, outtime;
+    int num, outtime, tempnumber, temptime;
     printf("车牌号：");
     scanf("%d", &num);
     printf("出场时间：");
     scanf("%d", &outtime);
     if (isCar(park, path, num) == 1)
     {
-        int flag = 1, tempnumber, temptime;
+        int flag = 1;
         while (park->top != -1 && flag == 1) //遍历底栈
         {
             if (park->dates[park->top].number == num)
@@ -248,11 +248,11 @@ void outPark(stack *park, queue *path, int *number, car vehicle, int *data, int 
             pushtop(park, tempnumber, temptime); //车辆重新返回停车场
         }
 
-        if (queueEmpty != 0) //队列不为空
+        if (deQueue(path, data, time) == 0)
         {
-            deQueue(path, data, time); //便道的车辆入场
-            tempnumber = *number;
-            temptime = outtime; //修改车辆的入场时间
+            //便道的车辆入场
+            tempnumber = *data;
+            temptime = *time; //修改车辆的入场时间
             pushtop(park, tempnumber, temptime);
         }
     }
@@ -304,7 +304,8 @@ int main()
         case 'P':
         case 'p':
             printPark(&park); //显示车辆信息
-            printQueue(path);
+            //printQueue(path);
+            break;
         case 'E':
         case 'e':
             return 0;

@@ -15,8 +15,8 @@ typedef struct car //车辆数据
 typedef struct stack //定双向义栈
 {
     car dates[MAX * 2];
-    int top;
-    int down;
+    int top;  //底栈
+    int down; //顶栈
 } stack;
 
 typedef struct queue //定义队列
@@ -99,7 +99,7 @@ void printPark(struct stack *park) //输出栈的内容
     }
     for (int i = park->top; i > -1; i--)
         printf("[%d]:车牌号%d:时间%d ", i, park->dates[i].number, park->dates[i].time);
-    printf("\n");
+    printf("->出口\n");
 }
 
 queue *initQueue() //初始化队列
@@ -156,12 +156,12 @@ void printQueue(struct queue *path) //打印队列
     //要知道当前队列有多少个元素
     int length = (path->rear - path->front + (MAX + 1)) % (MAX + 1);
     int index = path->front;
+    printf("出口");
     for (int i = 0; i < length; i++)
     {
-        printf("车牌号:[%d] -> ", path->data[index]);
+        printf("<-车牌号:[%d]", path->data[index]);
         index = (index + 1) % (MAX + 1);
     }
-    printf("NULL\n");
 }
 
 int isCar(stack *park, queue *path, int num) //判断车辆是否在内
@@ -238,7 +238,7 @@ void outPark(stack *park, queue *path, int *number, car vehicle, int *data, int 
             pushdown(park, tempnumber, temptime);
         }
 
-        printf("车牌号[%d]已成功出场，收费为%d元\n", *number, PRICE * (outtime - *time));
+        printf("车牌号[%d]成功出场，停车[%d]小时，收费为%d元\n", *number, outtime - *time, PRICE * (outtime - *time));
 
         while (park->down != MAX * 2) //遍历顶栈
         {
@@ -252,14 +252,17 @@ void outPark(stack *park, queue *path, int *number, car vehicle, int *data, int 
         {
             //便道的车辆入场
             tempnumber = *data;
-            temptime = *time; //修改车辆的入场时间
+            temptime = outtime; //修改车辆的入场时间
             pushtop(park, tempnumber, temptime);
         }
     }
-    else if (isCar(park, path, num) == 2)
-        printf("车辆在便道上\n");
+    else if (isCar(park, path, num) == 2) //便道
+    {
+        printf("车辆在便道上！\n");
+    }
+
     else
-        printf("未找到车辆！\n");
+        printf("未找到车辆!\n");
 }
 
 void mainMeun(stack *park) //主菜单
@@ -304,7 +307,7 @@ int main()
         case 'P':
         case 'p':
             printPark(&park); //显示车辆信息
-            //printQueue(path);
+            printQueue(path);
             break;
         case 'E':
         case 'e':

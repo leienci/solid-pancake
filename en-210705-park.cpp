@@ -94,11 +94,12 @@ void printPark(struct stack *park) //输出栈的内容
 {
     if (isEmptytop(park)) //先判断栈是否为空
     {
-        printf("当前栈为空！\n");
+        printf("当前停车场为空！\n");
         return;
     }
     for (int i = park->top; i > -1; i--)
-        printf("[%d]:车牌号%d:时间%d-", i, park->dates[i].number, park->dates[i].time);
+        printf("[%d]:车牌号%d:时间%d ", i, park->dates[i].number, park->dates[i].time);
+    printf("\n");
 }
 
 queue *initQueue() //初始化队列
@@ -157,7 +158,7 @@ void printQueue(struct queue *path) //打印队列
     int index = path->front;
     for (int i = 0; i < length; i++)
     {
-        printf("%d -> ", path->data[index]);
+        printf("车牌号:[%d] -> ", path->data[index]);
         index = (index + 1) % (MAX + 1);
     }
     printf("NULL\n");
@@ -201,7 +202,7 @@ void inPark(stack *park, queue *path, car vehicle) //车辆进场
             if (enQueue(path, num, intime))
             {
                 printf("停车场当前已满，进入过道等候\n");
-                printf("当前车辆停在[%d]号过道:等待入场\n", path->rear);
+                printf("当前车辆停在过道:等待入场\n", path->rear);
             }
             else
                 printf("过道已满，停车失败");
@@ -219,37 +220,39 @@ void outPark(stack *park, queue *path, int *number, car vehicle, int *data, int 
     printf("车牌号：");
     scanf("%d", &num);
     printf("出场时间：");
-    scanf("%d");
+    scanf("%d", &outtime);
     if (isCar(park, path, num) == 1)
     {
-        for (int i = park->top; i > -1; i--) //遍历底栈
+        int flag = 1, tempnumber, temptime;
+        while (park->top != -1 && flag == 1) //遍历底栈
         {
             if (park->dates[park->top].number == num)
             {
-                i = -1;
+                flag = 0;
+                poptop(park, number, time);
+                break;
             }
-            poptop(park, number, time); //将车辆转移至顶栈
-            int tempnumber = *number;
-            int temptime = *time;
+            poptop(park, number, time); //将车辆先转移至顶栈
+            tempnumber = *number;
+            temptime = *time;
             pushdown(park, tempnumber, temptime);
         }
 
-        popdown(park, number, time);
-        printf("车牌号[%d]已成功出场,收费为%d元。\n", *number,(outtime - (*time) * PRICE));
+        printf("车牌号[%d]已成功出场，收费为%d元\n", *number, PRICE * (outtime - *time));
 
-        for (int i = park->down; i < MAX * 2; i++)
+        while (park->down != MAX * 2) //遍历顶栈
         {
             popdown(park, number, time);
-            int tempnumber = *number; //车辆重新入栈
-            int temptime = *time;
-            pushtop(park, tempnumber, temptime);
+            tempnumber = *number;
+            temptime = *time;
+            pushtop(park, tempnumber, temptime); //车辆重新返回停车场
         }
 
         if (queueEmpty != 0) //队列不为空
         {
-            deQueue(path, data, time); //队列里的车入场
-            int tempnumber = *number;
-            int temptime = *time;
+            deQueue(path, data, time); //便道的车辆入场
+            tempnumber = *number;
+            temptime = outtime; //修改车辆的入场时间
             pushtop(park, tempnumber, temptime);
         }
     }
@@ -257,9 +260,6 @@ void outPark(stack *park, queue *path, int *number, car vehicle, int *data, int 
         printf("车辆在便道上\n");
     else
         printf("未找到车辆！\n");
-
-    printPark(park);
-    printQueue(path);
 }
 
 void mainMeun(stack *park) //主菜单
@@ -269,11 +269,11 @@ void mainMeun(stack *park) //主菜单
     printf("**                                                     **\n");
     printf("**       A --- 汽车进车场       D --- 汽车出车场       **\n");
     printf("**                                                     **\n");
-    printf("**                   E --- 退出程序                    **\n");
+    printf("**       P --- 显示车辆信息     E --- 退出程序          **\n");
     printf("**                                                     **\n");
     printf("**          停车场剩余%d车位，每小时收费%d元             **\n", MAX - park->top - 1, PRICE);
     printf("=========================================================\n");
-    printf(" 请选择 :(A,D,E): \n");
+    printf(" 请选择 :(A,D,P,E): \n");
 }
 
 int main()
@@ -301,6 +301,10 @@ int main()
         case 'd':
             outPark(&park, path, &chip, vehicle, &chip, &chip); //车辆出场
             break;
+        case 'P':
+        case 'p':
+            printPark(&park); //显示车辆信息
+            printQueue(path);
         case 'E':
         case 'e':
             return 0;
